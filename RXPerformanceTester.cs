@@ -38,7 +38,12 @@ public class RXPerformanceTester
 	static private double _efficiency;
 
 	static private Stopwatch _watch = new Stopwatch();
+
+	//disable warnings so we don't get an "assigned but never used" warning
+	//the _timer variable is used to store a reference to the timer so it doesn't get GC'd
+	#pragma warning disable
 	static private Timer _timer;
+	#pragma warning restore
 
 	//numtests should be a relatively low number, like 25, and numIterationsPerTest should be a high number like 1000, 10000, or 100000
 	static public void Run(int numTests, int numIterationsPerTest)
