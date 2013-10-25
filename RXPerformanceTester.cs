@@ -67,11 +67,11 @@ public class RXPerformanceTester
 		//warm up tests for indexes below zero aren't counted
 		if(_currentTestIndex < 0)
 		{
-			ActuallyRun(_currentTestIndex);
+			DoTest(_currentTestIndex);
 		}
 		else //do the test for real and measure the efficiency
 		{
-			_efficiency += ActuallyRun(_currentTestIndex);
+			_efficiency += DoTest(_currentTestIndex);
 		}
 
 		_currentTestIndex++;
@@ -109,7 +109,7 @@ public class RXPerformanceTester
 		_timer = null;
 	}
 	
-	static private double ActuallyRun(int testIndex)
+	static private double DoTest(int testIndex)
 	{
 		long timeA = 0;
 		long timeB = 0;
