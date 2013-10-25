@@ -7,17 +7,17 @@ using System.Threading;
 
 //USAGE:
 
-RXPerfTester.testA = () =>
+RXPerformanceTester.testA = () =>
 {
 	Math.Sin(0.0);
 };
 
-RXPerfTester.testB = () =>
+RXPerformanceTester.testB = () =>
 {
 	Math.Cos(0.0);
 };
 
-RXPerfTester.Run(25,10000);
+RXPerformanceTester.Run(25,10000);
 
 */
 
@@ -54,7 +54,7 @@ public class RXPerformanceTester
 		_numTests = numTests;
 		_numIterationsPerTest = numIterationsPerTest;
 
-		if(testA == null || testB == null) throw new Exception("You must set testA and testB before calling run");
+		if(testA == null || testB == null) throw new Exception("RXPerformanceTester: You must set testA and testB before calling Run()");
 
 		_currentTestIndex = -2; //-2 means two warm up tests
 		_efficiency = 0.0f;
