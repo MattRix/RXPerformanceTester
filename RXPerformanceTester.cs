@@ -1,0 +1,166 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+
+/* 
+
+//USAGE:
+
+RXPerfTester.testA = () =>
+{
+	Math.Sin(0.0);
+};
+
+RXPerfTester.testB = () =>
+{
+	Math.Cos(0.0);
+};
+
+RXPerfTester.Run(25,10000);
+
+*/
+
+public class RXPerformanceTester
+{
+	static public Action<string> Log = UnityEngine.Debug.Log;
+	//static public Action<string> Log = Console.WriteLine; //use this if you want no reliance on Unity
+
+	static private int _numTests;
+	static private int _numIterationsPerTest;
+
+	static private int _currentTestIndex;
+	static private double _efficiency;
+	
+	static public Stopwatch watch = new Stopwatch();
+
+	static public Action testA;
+	static public Action testB;
+
+	static public bool isRunning = false;
+
+	static private Timer _timer;
+
+	//numtests should be a relatively low number, like 25, and numIterationsPerTest should be a high number like 1000, 10000, or 100000
+	static public void Run(int numTests, int numIterationsPerTest)
+	{
+		if(isRunning)
+		{
+			Log("You must let the current test finish before running another");
+			return;
+		}
+
+		isRunning = true;
+
+		_numTests = numTests;
+		_numIterationsPerTest = numIterationsPerTest;
+
+		if(testA == null || testB == null) throw new Exception("You must set testA and testB before calling run");
+
+		_currentTestIndex = -2; //-2 means two warm up tests
+		_efficiency = 0.0f;
+
+		DoNextTest();
+	}
+
+	static private void DoNextTest ()
+	{
+		//warm up tests for indexes below zero aren't counted
+		if(_currentTestIndex < 0)
+		{
+			ActuallyRun(_currentTestIndex);
+		}
+		else //do the test for real and measure the efficiency
+		{
+			_efficiency += ActuallyRun(_currentTestIndex);
+		}
+
+		_currentTestIndex++;
+		if(_currentTestIndex == _numTests)
+		{
+			DoFinalOutput();
+		}
+		else 
+		{
+			_timer = new System.Threading.Timer(obj => { DoNextTest(); }, null, 1, System.Threading.Timeout.Infinite);
+		}
+	}
+
+	static private void DoFinalOutput ()
+	{
+		_efficiency /= (float)_numTests;
+		
+		if(Math.Abs(_efficiency*100.0 - 100.0) <= 2.0) //within 2 percent is considered equal
+		{
+			Log("All tests complete, they're equal!");
+		}
+		else if(_efficiency < 1.0)
+		{
+			int percent = (int) Math.Round(1.0/_efficiency * 100.0) - 100;
+			Log("All tests complete, A is "+percent+"% faster!");
+		}
+		else 
+		{
+			int percent = (int) Math.Round(_efficiency * 100.0) - 100;
+			Log("All tests complete, B is "+percent+"% faster!");
+		}
+
+		isRunning = false;
+		_timer = null;
+	}
+	
+	static private double ActuallyRun(int testIndex)
+	{
+		long timeA = 0;
+		long timeB = 0;
+
+		//start with either test A or test B, randomly
+		bool shouldTestABeFirst = new System.Random((int)DateTime.UtcNow.Ticks).NextDouble() < 0.5;
+
+		if(shouldTestABeFirst)
+		{
+			for(int t = 0; t<_numIterationsPerTest; t++)
+			{
+				watch.Reset();
+				watch.Start();
+				testA();
+				timeA += watch.ElapsedTicks;
+			}
+
+			for(int t = 0; t<_numIterationsPerTest; t++)
+			{
+				watch.Reset();
+				watch.Start();
+				testB();
+				timeB += watch.ElapsedTicks;
+			}
+		}
+		else 
+		{
+			for(int t = 0; t<_numIterationsPerTest; t++)
+			{
+				watch.Reset();
+				watch.Start();
+				testB();
+				timeB += watch.ElapsedTicks;
+			}
+
+			for(int t = 0; t<_numIterationsPerTest; t++)
+			{
+				watch.Reset();
+				watch.Start();
+				testA();
+				timeA += watch.ElapsedTicks;
+			}
+		}
+
+		double delta = (double)timeA/(double)timeB; 
+
+		if(testIndex >= 0) //don't bother logging the warm up tests
+		{
+			Log("Test " + testIndex + " A:" + timeA + "   B:" + timeB + " efficiency: " + delta);
+		}
+		
+		return delta;
+	}
+}
