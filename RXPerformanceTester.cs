@@ -26,19 +26,18 @@ public class RXPerformanceTester
 	static public Action<string> Log = UnityEngine.Debug.Log;
 	//static public Action<string> Log = Console.WriteLine; //use this if you want no reliance on Unity
 
-	static private int _numTests;
-	static private int _numIterationsPerTest;
-
-	static private int _currentTestIndex;
-	static private double _efficiency;
-	
-	static public Stopwatch watch = new Stopwatch();
-
 	static public Action testA;
 	static public Action testB;
 
 	static public bool isRunning = false;
 
+	static private int _numTests;
+	static private int _numIterationsPerTest;
+
+	static private int _currentTestIndex;
+	static private double _efficiency;
+
+	static private Stopwatch _watch = new Stopwatch();
 	static private Timer _timer;
 
 	//numtests should be a relatively low number, like 25, and numIterationsPerTest should be a high number like 1000, 10000, or 100000
@@ -82,6 +81,7 @@ public class RXPerformanceTester
 		}
 		else 
 		{
+			//delay for just a tiny amount of time so that it doesn't block the thread completely
 			_timer = new System.Threading.Timer(obj => { DoNextTest(); }, null, 1, System.Threading.Timeout.Infinite);
 		}
 	}
@@ -121,36 +121,36 @@ public class RXPerformanceTester
 		{
 			for(int t = 0; t<_numIterationsPerTest; t++)
 			{
-				watch.Reset();
-				watch.Start();
+				_watch.Reset();
+				_watch.Start();
 				testA();
-				timeA += watch.ElapsedTicks;
+				timeA += _watch.ElapsedTicks;
 			}
 
 			for(int t = 0; t<_numIterationsPerTest; t++)
 			{
-				watch.Reset();
-				watch.Start();
+				_watch.Reset();
+				_watch.Start();
 				testB();
-				timeB += watch.ElapsedTicks;
+				timeB += _watch.ElapsedTicks;
 			}
 		}
 		else 
 		{
 			for(int t = 0; t<_numIterationsPerTest; t++)
 			{
-				watch.Reset();
-				watch.Start();
+				_watch.Reset();
+				_watch.Start();
 				testB();
-				timeB += watch.ElapsedTicks;
+				timeB += _watch.ElapsedTicks;
 			}
 
 			for(int t = 0; t<_numIterationsPerTest; t++)
 			{
-				watch.Reset();
-				watch.Start();
+				_watch.Reset();
+				_watch.Start();
 				testA();
-				timeA += watch.ElapsedTicks;
+				timeA += _watch.ElapsedTicks;
 			}
 		}
 
