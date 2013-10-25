@@ -16,7 +16,7 @@ RXPerformanceTester.testB = () =>
 	Math.Cos(0.0);
 };
 
-RXPerfTester.Run(25,10000);
+RXPerformanceTester.Run(25,10000);
 ```
 
 You can even do stuff like this: 
